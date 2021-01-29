@@ -6,12 +6,13 @@ import Moment from 'moment';
 
 const clirules = (
   <div>
-    <p>$$$ from p1 to p2,p3,p4 [for reason]</p>
-    <p>$$$ to p1,p2,p3 from p4 [for reason]</p>
-    <p>p1 pass</p>
-    <p>p1 land</p>
-    <p>p1 park</p>
-    <p>clear game</p>
+    <p>$$$ <b>from</b> p1 <b>to</b> p2,p3,p4 [<b>for</b> reason]</p>
+    <p>$$$ <b>to</b> p1,p2,p3 <b>from</b> p4 [<b>for</b> reason]</p>
+    <p>p1 <b>pass</b></p>
+    <p>p1 <b>land</b></p>
+    <p>p1 <b>park</b></p>
+    <p><b>add</b> p1 $$$</p>
+    <p><b>clear game</b></p>
   </div>
 );
 
@@ -153,12 +154,10 @@ const Container = () => {
       player.name.toLowerCase().startsWith(name.toLowerCase())
     );
     if (Candidates.length === 0) {
-      createNotification(`could not find player matching ${name})`);
-      return -1;
+      throw `could not find player matching ${name}`;
     }
     if (Candidates.length >= 2) {
-      createNotification(`found multiple players matching ${name})`);
-      return -1;
+      throw `found multiple players matching ${name}`;
     }
     let key = Candidates[0].key;
     return key;
@@ -201,8 +200,10 @@ const Container = () => {
     let land = /^(\w+)\s+land$/i;
     //"p1 park"
     let park = /^(\w+)\s+park$/i;
-    // clear game
-    let clear = /clear game/i;
+    //"clear game"
+    let clear = /^clear\s+game$/i;
+    //"add p1 $$$"
+    let add = /^add\s+(\w+)\s+(\d+)$/i;
 
     try {
       if (trans1.test(str)) {
@@ -255,6 +256,13 @@ const Container = () => {
       } else if (clear.test(str)) {
 
         clearGame();
+
+      } else if (add.test(str)) {
+
+        let match = add.exec(str);
+        let player = match[1];
+        let amount = parseInt(match[2]);
+        handleAdd(player, amount);
 
       } else {
 
@@ -331,7 +339,7 @@ const Container = () => {
         placeholder="Scrubs use buttons"
         onChange={inputUpdate}
         addonAfter={
-          <Popover content={clirules} title="The cli rules">
+          <Popover content={clirules} title={<p>The cli <b>rules</b> </p>}>
             <Button type="secondary" onClick={null}>
               Show Help
             </Button>
