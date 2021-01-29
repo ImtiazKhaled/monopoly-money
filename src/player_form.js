@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Form, Select, InputNumber, Input, Button } from 'antd'
-  
-const { Option } = Select
+import { Form, InputNumber, Input, Button } from 'antd'
+
 const formItemLayout = { labelCol: { span: 6 }, wrapperCol: { span: 14 } }
   
 

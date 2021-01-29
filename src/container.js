@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table, Space, Button, List, Input, Popover } from "antd";
+import { Table, Space, Button, List, Input, Popover, Row, Col } from "antd";
 import AddPlayer from "./add_player";
 import GetMoney from "./transfer_money";
+import Moment from 'moment';
 
 const clirules = (
   <div>
@@ -17,7 +18,6 @@ const Container = () => {
   const [players, setPlayers] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [inputVal, setInputVal] = useState("");
-  const [modalVisible, setModalVisible] = useState("");
 
   useEffect(() => {
     const test_players = JSON.parse(localStorage.getItem("players"))
@@ -63,7 +63,7 @@ const Container = () => {
     localStorage.setItem("players", JSON.stringify(new_players));
 
     // handling notification update
-    createNotification(`Added player ${player} with $${money}`);
+    createNotification(`Added player ${player} with 💲${money}`);
   };
 
   const handleGo = (player, amount, reason) => {
@@ -71,7 +71,7 @@ const Container = () => {
     updateMoney(player, amount);
 
     // handling notification update
-    createNotification(`Paying ${player.name} $${amount} for ${reason}`);
+    createNotification(`Paying ${player.name} 💲${amount} for ${reason}`);
   };
 
   const handleTransfer = (player, other_info) => {
@@ -103,7 +103,7 @@ const Container = () => {
     localStorage.setItem("players", JSON.stringify(players_copy));
 
     createNotification(
-      `${player.name} is giving ${lucky_player_names} $${other_info.amount} for ${other_info.reason}`
+      `${player.name} ➡️ ${lucky_player_names} 💲${other_info.amount} for ${other_info.reason}`
     );
   };
 
@@ -123,10 +123,12 @@ const Container = () => {
   };
 
   const createNotification = (reason) => {
+
     const notifications_copy = JSON.parse(JSON.stringify(notifications));
     notifications_copy.unshift({ reason: reason, time: new Date() });
     setNotifications(notifications_copy);
     localStorage.setItem("notifications", JSON.stringify(notifications_copy));
+
   };
 
   const nameToKey = (name) => {
@@ -182,6 +184,7 @@ const Container = () => {
 
     try {
       if (trans1.test(str)) {
+
         let match = trans1.exec(str);
         let namesTo = match[3].split(",");
         let playersTo = namesTo.map((name) => nameToKey(name));
@@ -191,7 +194,9 @@ const Container = () => {
           players: playersTo,
           reason: match[5] ?? "reasons unknown",
         });
+
       } else if (trans2.test(str)) {
+
         let match = trans2.exec(str);
         let namesTo = match[2].split(",");
         let playersTo = namesTo.map((name) => nameToKey(name));
@@ -201,15 +206,21 @@ const Container = () => {
           players: playersTo,
           reason: match[5] ?? "reasons unknown",
         });
+
       } else if (pass.test(str)) {
+
         let match = pass.exec(str);
         let player = nameToObj(match[1]);
         handleGo(player, 200, "passing go");
+
       } else if (land.test(str)) {
+
         let match = land.exec(str);
         let player = nameToObj(match[1]);
         handleGo(player, 400, "landing on go");
+
       } else if (park.test(str)) {
+
         let match = park.exec(str);
         let player = nameToKey(match[1]);
         let parkingCopy = nameToObj("free");
@@ -218,13 +229,17 @@ const Container = () => {
           players: [player],
           reason: "free parking",
         });
+
       } else {
+
         throw "could not understand " + str;
-        return false;
+
       }
     } catch (e) {
+
       createNotification("error:" + e);
       return false;
+
     }
     return true;
   };
@@ -244,6 +259,7 @@ const Container = () => {
       render: (text, record) => (
         <div style={{ fontSize: "18px" }}>${record.money}</div>
       ),
+      sorter: (a, b) => a.money - b.money,
     },
     {
       title: "Action",
@@ -305,7 +321,18 @@ const Container = () => {
         footer={null}
         bordered
         dataSource={notifications.reverse()}
-        renderItem={(item) => <List.Item>{item.reason}</List.Item>}
+        renderItem={(item) => (
+          <List.Item>
+            <Row style={{width: '100%'}}>
+              <Col span={18}>
+                {item.reason}
+              </Col>
+              <Col span={6}>
+                {Moment(item.time).fromNow()}
+              </Col>
+            </Row>
+          </List.Item>
+        )}
       />
     </div>
   );
