@@ -18,20 +18,8 @@ const AddPlayer = (props) => {
         setIsModalVisible(false)
     }
 
-    const clearGame = () => {
-        localStorage.setItem('notifications', JSON.stringify([]))
-        localStorage.setItem('players', JSON.stringify([
-            {
-                key: 1,
-                name: "Bank",
-                money: 100000
-            },{
-                key: 2,
-                name: "Free Parking",
-                money: 0
-            }
-        ]))
-        window.location.reload(false)
+    const onClear = () => {
+        props.onClear()
     }
 
     return (
@@ -39,7 +27,7 @@ const AddPlayer = (props) => {
             <Button style={{margin: '20px'}} type="primary" onClick={showModal}>
                Add Player
             </Button>
-            <Button type="secondary" onClick={clearGame}>
+            <Button type="secondary" onClick={onClear}>
                Clear Game
             </Button>
             <Modal footer={null} title="Basic Modal" visible={isModalVisible} onCancel={handleCancel}>

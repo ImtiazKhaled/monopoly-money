@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Table, Space, Button, List, Input, Popover, Row, Col } from "antd";
 import AddPlayer from "./add_player";
 import GetMoney from "./transfer_money";
@@ -11,15 +11,16 @@ const clirules = (
     <p>p1 pass</p>
     <p>p1 land</p>
     <p>p1 park</p>
+    <p>clear game</p>
   </div>
 );
 
 const Container = () => {
-  const [players, setPlayers] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [inputVal, setInputVal] = useState("");
+  const [players, setPlayers] = React.useState([]);
+  const [notifications, setNotifications] = React.useState([]);
+  const [inputVal, setInputVal] = React.useState("");
 
-  useEffect(() => {
+  React.useEffect(() => {
     const test_players = JSON.parse(localStorage.getItem("players"))
       ? JSON.parse(localStorage.getItem("players"))
       : [
@@ -49,6 +50,22 @@ const Container = () => {
     } else if (event.nativeEvent.inputType === "insertFromPaste") {
       setInputVal(inputVal + event.nativeEvent.data);
     }
+  };
+
+  const clearGame = () => {
+    localStorage.setItem('notifications', JSON.stringify([]))
+    localStorage.setItem('players', JSON.stringify([
+        {
+            key: 1,
+            name: "Bank",
+            money: 100000
+        },{
+            key: 2,
+            name: "Free Parking",
+            money: 0
+        }
+    ]))
+    window.location.reload(false)
   };
 
   const handleAdd = (player, money) => {
@@ -135,7 +152,7 @@ const Container = () => {
     let Candidates = players.filter((player) =>
       player.name.toLowerCase().startsWith(name.toLowerCase())
     );
-    if (Candidates.length == 0) {
+    if (Candidates.length === 0) {
       createNotification(`could not find player matching ${name})`);
       return -1;
     }
@@ -151,13 +168,16 @@ const Container = () => {
     let Candidates = players.filter((player) =>
       player.name.toLowerCase().startsWith(name.toLowerCase())
     );
-    if (Candidates.length == 0) {
+
+    if (Candidates.length === 0) {
       throw `could not find player matching ${name}`;
     }
+
     if (Candidates.length >= 2) {
-      createNotification();
+        createNotification();
       throw `found multiple players matching ${name}`;
     }
+
     let p = Candidates[0];
     return p;
   };
@@ -181,6 +201,8 @@ const Container = () => {
     let land = /^(\w+)\s+land$/i;
     //"p1 park"
     let park = /^(\w+)\s+park$/i;
+    // clear game
+    let clear = /clear game/i;
 
     try {
       if (trans1.test(str)) {
@@ -229,6 +251,10 @@ const Container = () => {
           players: [player],
           reason: "free parking",
         });
+
+      } else if (clear.test(str)) {
+
+        clearGame();
 
       } else {
 
@@ -297,7 +323,7 @@ const Container = () => {
 
   return (
     <div>
-      <AddPlayer onAdd={handleAdd} />
+      <AddPlayer onClear={clearGame} onAdd={handleAdd} />
 
       <Table pagination={false} dataSource={players} columns={columns} />
 
